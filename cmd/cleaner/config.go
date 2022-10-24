@@ -13,10 +13,6 @@ type (
 		time.Duration
 	}
 
-	CfgService struct {
-		Location string `toml:"location"`
-	}
-
 	CfgBilling struct {
 		ApiURL           string            `toml:"api_url"`
 		Username         string            `toml:"username"`
@@ -37,7 +33,6 @@ type (
 	}
 
 	Config struct {
-		Service CfgService `toml:"service"`
 		Billing CfgBilling `toml:"billing"`
 		Cisco   CfgCisco   `toml:"cisco"`
 		Path    string

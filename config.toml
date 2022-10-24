@@ -1,0 +1,19 @@
+[billing]
+    api_url = "https://---/api/v1"      # UTM5 API url (https://github.com/sir-go/utm5-urfa-api)
+    username = ""                       # billing system account name
+    password = ""                       # billing system account password
+    session_life_time = "10m"           # TTL for RADIUS session
+    ssh_username = ""                   # SSH username of user with utm5_radius restart permissions
+    ssh_password = ""                   # SSH password
+    ssh_timeout = "1m"                  # SSH connections timeout
+    radius_restart_cmd = "/etc/init.d/utm5_radius stop && /etc/init.d/utm5_radius start"
+
+[billing.hosts]                         # billing hosts (for API prefix and SSH connection)
+    test = ""
+
+[cisco]                                 # ISG-Router telnet credentials
+    address = ""
+    username = ""
+    password = ""
+    drop_session_command = "clear sss session user %s"
+    telnet_cmd_timeout = "10s"
