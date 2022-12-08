@@ -1,5 +1,7 @@
 # UTM5 RADIUS sessions cleaner
-Tool for cleanup stuck RADIUS sessions in UTM5 billing kernel and Cisco ISG Router.
+[![Go](https://github.com/sir-go/utm5-radius-cleaner/actions/workflows/go.yml/badge.svg)](https://github.com/sir-go/utm5-radius-cleaner/actions/workflows/go.yml)
+
+A tool for cleanup stuck RADIUS sessions in UTM5 billing kernel and Cisco ISG Router.
 
 ## How it works
 1. get active sessions list `rpcf_radius_get_active_sessions`
@@ -12,8 +14,14 @@ Tool for cleanup stuck RADIUS sessions in UTM5 billing kernel and Cisco ISG Rout
 
 example config - `config.toml`
 
+## Docker
+```bash
+docker build -t r_cleaner .
+docker run --rm -it -v ${PWD}/config.toml:/config.toml:ro r_cleaner:latest
+```
+
 ## Build
 ```bash
 go mod download
-build -o r_cleaner cmd/cleaner
+gosec -exclude G106 ./... && build -o r_cleaner cmd/cleaner
 ```
