@@ -1,22 +1,14 @@
 package radius
 
 import (
-	"time"
-
 	expect "github.com/google/goexpect"
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/ssh"
 )
 
 type (
-	Config struct {
-		Address  string        `toml:"address"`
-		Username string        `toml:"username"`
-		Password string        `toml:"password"`
-		Timeout  time.Duration `toml:"timeout"`
-	}
 	Client struct {
-		Config
+		cfg Config
 	}
 )
 
@@ -26,10 +18,10 @@ func NewClient(cfg Config) *Client {
 
 func (c *Client) Exec(cmd string) error {
 	sshClt, err := ssh.Dial(
-		"tcp", c.Address+":22",
+		"tcp", c.cfg.Address+":22",
 		&ssh.ClientConfig{
-			User:            c.Username,
-			Auth:            []ssh.AuthMethod{ssh.Password(c.Password)},
+			User:            c.cfg.Username,
+			Auth:            []ssh.AuthMethod{ssh.Password(c.cfg.Password)},
 			HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 		})
 	if err != nil {
@@ -37,7 +29,7 @@ func (c *Client) Exec(cmd string) error {
 	}
 	defer func() { _ = sshClt.Close() }()
 
-	exp, _, err := expect.SpawnSSH(sshClt, c.Timeout)
+	exp, _, err := expect.SpawnSSH(sshClt, c.cfg.Timeout)
 	if err != nil {
 		return err
 	}
@@ -47,7 +39,7 @@ func (c *Client) Exec(cmd string) error {
 		&expect.BExp{R: ":~#"},
 		&expect.BSnd{S: cmd + "\n"},
 		&expect.BExp{R: ":~#"},
-	}, c.Timeout); err != nil {
+	}, c.cfg.Timeout); err != nil {
 		msg := "\n"
 		for _, r := range responses {
 			msg += r.Output
