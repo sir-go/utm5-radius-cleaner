@@ -23,15 +23,8 @@ type (
 		Sessions []RadiusSession `json:"traffic_sessions"`
 	}
 
-	Config struct {
-		Url      string `toml:"api_url"`
-		Prefix   string `toml:"prefix"`
-		Username string `toml:"username"`
-		Password string `toml:"password"`
-	}
-
 	Client struct {
-		Config
+		cfg Config
 	}
 
 	Args map[string]interface{}
@@ -62,10 +55,10 @@ func (s *RadiusSession) IsExpired(lifeTime time.Duration) (expired bool, since t
 func (c *Client) call(method string, args Args, target interface{}) (err error) {
 	zlog.Debug().Str("method", method).Interface("args", args).Msg("utm call")
 	var res *jsonrpc.RPCResponse
-	client := jsonrpc.NewRPCClient(c.Url)
-	client.SetBasicAuth(c.Username, c.Password)
+	client := jsonrpc.NewRPCClient(c.cfg.Url)
+	client.SetBasicAuth(c.cfg.Username, c.cfg.Password)
 
-	if res, err = client.CallNamed(c.Prefix+"."+method, args); err != nil {
+	if res, err = client.CallNamed(c.cfg.Prefix+"."+method, args); err != nil {
 		return
 	}
 

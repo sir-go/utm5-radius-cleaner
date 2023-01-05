@@ -10,15 +10,8 @@ import (
 )
 
 type (
-	Config struct {
-		Address         string        `toml:"address"`
-		Username        string        `toml:"username"`
-		Password        string        `toml:"password"`
-		CommandTimeout  time.Duration `toml:"command_timeout"`
-		DropSessionsCmd string        `toml:"drop_sessions_cmd"`
-	}
 	Client struct {
-		Config
+		cfg Config
 	}
 )
 
@@ -31,7 +24,7 @@ func (c *Client) DropSessions(usernames []string) error {
 		zlog.Debug().Msg("cisco: nothing to drop")
 		return nil
 	}
-	gExpect, _, err := expect.Spawn("telnet "+c.Address, -1)
+	gExpect, _, err := expect.Spawn("telnet "+c.cfg.Address, -1)
 	if err != nil {
 		return err
 	}
@@ -39,19 +32,19 @@ func (c *Client) DropSessions(usernames []string) error {
 
 	commands := []expect.Batcher{
 		&expect.BExp{R: "Username:"},
-		&expect.BSnd{S: c.Username + "\n"},
+		&expect.BSnd{S: c.cfg.Username + "\n"},
 		&expect.BExp{R: "Password:"},
-		&expect.BSnd{S: c.Password + "\n"},
+		&expect.BSnd{S: c.cfg.Password + "\n"},
 	}
 
 	for _, username := range usernames {
 		commands = append(commands,
 			&expect.BExp{R: "ISG-Router>"},
-			&expect.BSnd{S: fmt.Sprintf("%s %s\n", c.DropSessionsCmd, username)})
+			&expect.BSnd{S: fmt.Sprintf("%s %s\n", c.cfg.DropSessionsCmd, username)})
 	}
 
 	commands = append(commands, &expect.BExp{R: "ISG-Router>"}, &expect.BSnd{S: "logout\n"})
-	timeout := time.Duration(int64(len(commands))) * c.CommandTimeout
+	timeout := time.Duration(int64(len(commands))) * c.cfg.CommandTimeout
 
 	if responses, err := gExpect.ExpectBatch(commands, timeout); err != nil {
 		msg := "\n"
